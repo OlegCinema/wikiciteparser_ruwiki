@@ -27,15 +27,16 @@ import mwtypes
 import mwtypes.files
 import mwparserfromhell
 
-from .parser import parse_citation_template
+from .parser import parse_citation_template, get_cotegories_from_text, preprocess_text
 
 
 def extract_revision(revision):
     # type: (mwtypes.Revision) -> dict
     meta = {}
     meta["revision_id"] = revision.id
+    meta["categories"] = get_cotegories_from_text(revision.text)
     refs = []
-    wikicode = mwparserfromhell.parse(revision.text)
+    wikicode = mwparserfromhell.parse(preprocess_text(revision.text))
     for tmpl in wikicode.filter_templates():
         parsed = parse_citation_template(tmpl)
         if parsed:

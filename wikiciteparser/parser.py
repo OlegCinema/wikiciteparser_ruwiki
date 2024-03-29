@@ -10,7 +10,28 @@ luacode = ''
 luafilepath = os.path.join(os.path.dirname(__file__), 'cs1.lua')
 with open(luafilepath, 'r') as f:
     luacode = f.read()
+    
+# i need to get from [[Категория:Литва| ]] Категория:Литва, from [[Категория:Государства — члены Европейского союза]] Государства — члены Европейского союза etc
+def get_cotegories_from_text(text):
+    categories = []
+    for category in re.findall(r'\[\[(?:Категория|К):(.*)\|?.*?\]\]', text):
+        categories.append(category)
+    return categories
 
+def preprocess_text(text):
+    replacements = [
+        (r'\s*\|\s*автор\s*', '|author'),
+        (r'\s*\|\s*заглавие\s*', '|title'),
+        (r'\s*\|\s*язык\s*', '|lang'),
+        (r'\s*\|\s*год\s*', '|year'),
+        (r'\s*\|\s*ссылка\s*', '|url'),
+    ]
+
+    for pattern, replacement in replacements:
+        text = re.sub(pattern, replacement, text)
+
+    
+    return text
 
 # MediaWiki utilities simulated by Python wrappers
 def lua_to_python_re(regex):
@@ -158,6 +179,7 @@ def parse_citation_template(template, lang='en'):
     :returns: a dict representing the template, or None if the template
         provided does not represent a citation.
     """
+    
     class_name = citation_class_for_template(str(template.name), lang)
     if not class_name:
         return
